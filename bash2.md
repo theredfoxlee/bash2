@@ -163,7 +163,8 @@ W powłoce mamy do czynienia z dwoma typami zasięgu:
 - globalnym (wszystkie pozostałe z wyjatkiem parametrów funkcji - dostęp do nich mozliwy jest z całego skryptu).
 
 Zasięg przykład:
-`#!/bin/bash
+```bash
+#!/bin/bash
 function zmienne() {
     local var_local=4096
     var_global=128
@@ -174,15 +175,18 @@ echo "| Zmienne w funkcji:"
 zmienne
 echo "| Zmienne poza funkcją:"
 echo "  var_local => ${var_local}"
-echo "  var_global => ${var_global}"`
+echo "  var_global => ${var_global}"
+```
 
 Wynik:
-`| Zmienne w funkcji:
+```
+| Zmienne w funkcji:
   var_local => 4096
   var_global => 128
 | Zmienne poza funkcją:
   var_local => 
-  var_global => 128```
+  var_global => 128
+```
 
 
 ### Parameter Expansion
@@ -191,25 +195,36 @@ Znak `$` wprowadza interpretację parametrów, podstawianie poleceń lub interpr
 
 Podstawową formą rozszerzania parametrów jest `${parametr}`. Wartość parametru jest podstawiona. 
 
-`${parametr:-przykład}`
-    Jeśli parametr jest nieustawiony lub zerowy, to słowo "przykład" zostanie podstawione. W przeciwnym razie wartość parametru zostanie podstawiona.
+```
+${parametr:-przykład}
+```
+    Jeśli parametr jest nieustawiony lub pusty (np. `parametr=""`), to słowo "przykład" zostanie podstawione. W przeciwnym razie wartość parametru zostanie podstawiona.
     Ważne: jeżeli użyjemy `:-`  bash sprawdza czy parametr jest nieustawiony lub zerowy. Pominięcie dwukropka powoduje tylko test parametru, który nie jest ustawiony. Innymi słowy, jeśli dwukropek jest uwzględniony, operator sprawdza istnienie obu parametrów i czy jego wartość nie jest zerowa; jeśli dwukropek zostanie pominięty, operator sprawdza tylko istnienie.
 
-`${parametr:=przykład}`
-    Jeśli parametr jest nieustawiony lub zerowy, to słowo "przykład" zostanie przypisane do parametru. Wartość parametru zostaje następnie podstawiona. Parametry pozycyjne i parametry specjalne nie mogą być przypisane w ten sposób.
+```
+${parametr:=przykład}
+```
+    Jeśli parametr jest nieustawiony lub pusty (np. `parametr=""`)zerowy, to słowo "przykład" zostanie przypisane do parametru. Wartość parametru zostaje następnie podstawiona. Parametry pozycyjne i parametry specjalne nie mogą być przypisane w ten sposób.
 
-`${parametr:?przykład}`
-    Jeśli parametr ma wartość zerową lub jest nieustawiony, to słowo "przykład" jest zapisywane do standardowego błędu i powłoka, jeśli nie jest interaktywna, kończy działanie. W przeciwnym razie wartość parametru zostanie podstawiona.
+```
+${parametr:?przykład}
+```
+    Jeśli parametr jest nieustawiony lub pusty (np. `parametr=""`), to słowo "przykład" jest zapisywane do standardowego błędu i powłoka, jeśli nie jest interaktywna, kończy działanie. W przeciwnym razie wartość parametru zostanie podstawiona.
 
-`${parametr:+przykład}`
-    Jeśli parametr jest zerowy lub nieustawiony, nic nie jest podstawiane, w przeciwnym razie parametr jest zastępowany słowem "przykład".
+```
+${parametr:+przykład}
+```
+    Jeśli parametr jest nieustawiony lub pusty (np. `parametr=""`), nic nie jest podstawiane, w przeciwnym razie parametr jest zastępowany słowem "przykład".
 
-`${parametr:offset}
-$ {parametr:offset:długość}`
+```
+${parametr:offset}
+${parametr:offset:długość}
+```
     Jest to nazywane rozszerzaniem podciągów. Rozwija się do długości znaków o wartości parametru zaczynając od znaku określonego przez offset. Jeśli pominięto długość, to parametr rozwija się zaczynając od znaku określonego przez offset i rozciągając się do końca wartości.
     Jeśli wartość przesunięcia jest równa liczbie mniejszej od zera, wartość jest używana jako przesunięcie w znakach od końca wartości parametru. Jeśli długość ma wartość mniejszą od zera, jest ona interpretowana jako przesunięcie w znakach od końca wartości parametru zamiast liczby znaków, a rozwinięcie to znaki między przesunięciem a tym wynikiem. Ujemne przesunięcie musi być oddzielone od dwukropka co najmniej o jedną spację, aby uniknąć pomylenia z rozszerzeniem „:-”.
 Przykłady:
-`$ string=01234567890abcdefgh
+```bash
+$ string=01234567890abcdefgh
 $ echo ${string:7}
 7890abcdefgh
 $ echo ${string:7:0}
@@ -225,48 +240,110 @@ $ echo ${string: -7:0}
 $ echo ${string: -7:2}
 bc
 $ echo ${string: -7:-2}
-bcdef```
+bcdef
+```
 
 
-`${!prefiks*}
-${!prefiks@}`
+```
+${!prefiks*}
+${!prefiks@}
+```
     Rozwija się do nazw zmiennych, których nazwy rozpoczynają się od przedrostka "prefiks". Gdy zostanie użyte „@”, a rozwinięcie pojawi się w podwójnym cudzysłowie, każda nazwa zmiennej zostanie rozwinięta do osobnego słowa.
 
-`${!paramter[@]}
-${!paramter[*]}`
+```
+${!paramter[@]}
+${!paramter[*]}
+```
     Jeśli paramter jest zmienną tablicową, rozwija się do listy indeksów tablicowych (kluczy) przypisanych w parametrze. Jeśli paramter nie jest tablicą, interpretowana jest jako 0, jeśli paramter jest ustawiony, a w przeciwnym razie null. Gdy używane jest „@”, a rozwinięcie pojawia się w podwójnych cudzysłowach, każdy klawisz rozwija się do osobnego słowa.
 
-`${parametr#}`
+```
+${parametr#}
+```
     Długość w znakach rozszerzonej wartości parametru jest podstawiana. Jeśli parametr to „*” lub „@”, podstawiona wartość to liczba parametrów pozycyjnych. Jeśli parametr jest nazwą tablicy zapisaną w indeksie „*” lub „@”, podstawiona wartość to liczba elementów w tablicy. Jeśli parametr jest indeksowaną nazwą tablicy indeksowanej liczbą ujemną, liczba ta jest interpretowana jako względna do jednego większego niż maksymalny indeks parametru, więc indeksy ujemne odliczają od końca tablicy, a indeks -1 odwołuje się do ostatniego element.
 
-`${parametr#słowo}
-${parametr##słowo}`
+```
+${parametr#słowo}
+${parametr##słowo}
+```
     Słowo jest traktowane jako wzór (pattern) i dopasowywane zgodnie z zasadami opisanymi później. Jeśli wzorzec pasuje do początkowej częśći rozszerzonej wartości parametru, wynikiem rozszerzenia jest rozwinięta wartość parametru z najkrótszym pasującym wzorcem (przypadek „#”) lub najdłuższym pasującym wzorcem (przypadek „##”) usuniętym. Jeśli parametrem jest „@” lub „*”, operacja usuwania wzoru jest kolejno stosowana do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja usuwania wzorca jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
 
-`${parametr%słowo}
-${parametr%%słowo}`
+```
+${parametr%słowo}
+${parametr%%słowo}
+```
     Słowo jest traktowane jako wzór (pattern) i dopasowywane zgodnie z zasadami opisanymi później. Jeśli wzorzec pasuje do końcowej części rozwiniętej wartości parametru, wynikiem rozszerzenia jest wartość parametru o najkrótszym dopasowanym wzorcu (przypadek „%”) lub najdłuższym dopasowanym wzorcu (przypadek „%%”) usuniętym. Jeśli parametrem jest „@” lub „*”, operacja usuwania wzoru jest kolejno stosowana do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja usuwania wzorca jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
 
-`${parametr/wzór/ciąg}`
+```
+${parametr/wzór/ciąg}
+```
     "wzór" jest rozwijany, aby utworzyć wzorzec, podobnie jak w przypadku rozwijania nazw plików. Parametr jest rozszerzany, a najdłuższe dopasowanie wzorca do jego wartości jest zastępowane ciągiem "ciąg". Dopasowanie odbywa się zgodnie z zasadami opisanymi później. Jeśli wzorzec zaczyna się od „/”, wszystkie dopasowania wzorca są zastępowane ciągiem. Zwykle tylko pierwsze dopasowanie jest zastępowane. Jeśli wzorzec zaczyna się od „#”, musi pasować na początku rozszerzonej wartości parametru. Jeśli wzorzec zaczyna się od „%”, musi być zgodny na końcu rozszerzonej wartości parametru. Jeśli łańcuch jest pusty, dopasowania wzorca są usuwane, a wzorzec / następujący może zostać pominięty. Jeśli włączona jest opcja powłoki nocasematch, dopasowanie jest wykonywane bez względu na wielkość liter. Jeśli parametr to „@” lub „*”, operacja podstawienia jest stosowana kolejno do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja podstawienia jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
 
-`${parameter^wzór}
+```
+${parameter^wzór}
 ${parameter^^wzór}
 ${parameter,wzór}
-${parameter,,wzór}`
+${parameter,,wzór}
+```
     To rozszerzenie modyfikuje wielkość liter znaków alfabetycznych w parametrze. "wzór" jest rozwijany, aby utworzyć wzorzec (pattern), podobnie jak w przypadku rozwijania nazw plików. Każdy znak w rozszerzonej wartości parametru jest testowany względem wzorca, a jeśli pasuje do wzorca, jego wielkość liter jest konwertowana. Wzorzec nie powinien próbować dopasować więcej niż jednego znaku. Operator „^” konwertuje małe litery pasujące do wzorca; operator „,” konwertuje pasujące wielkie litery na małe. Rozszerzenia „^^” i „,,” przekształcają każdy dopasowany znak w wartość rozwiniętą; rozszerzenia „^” i „,” pasują i przekształcają tylko pierwszy znak w rozwiniętej wartości. Jeśli pominięto wzorzec, jest on traktowany jak „?”, Który pasuje do każdego znaku. Jeśli parametr to „@” lub „*”, operacja modyfikacji wielkości liter jest stosowana kolejno do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja modyfikacji wielkości liter jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
+
+### Pattern matching
+Każdy znak pojawiający się we wzorze, inny niż opisane poniżej znaki specjalne, pasuje do siebie. Znak NUL może nie występować we wzorcu. Specjalne znaki wzorca muszą być cytowane, jeśli mają być dosłownie dopasowane.
+
+Specjalne znaki wzorcowe mają następujące znaczenie:
+```
+*
+```
+    Dopasowuje dowolny ciąg, w tym ciąg zerowy. Gdy opcja powłoki globstar jest włączona, a „*” jest używane w kontekście rozszerzenia nazwy pliku, dwa sąsiednie „*” użyte jako pojedynczy wzorzec będą pasować do wszystkich plików oraz zero lub więcej katalogów i podkatalogów. Jeśli po nich następuje „/”, dwa sąsiednie „*” będą pasować tylko do katalogów i podkatalogów.
+
+```
+?
+```
+    Dopasowuje dowolny pojedynczy znak.
+
+```
+[…]
+```
+    Odpowiada dowolnemu z podanych znaków znaków. Para znaków oddzielona myślnikiem oznacza wyrażenie zakresu; dopasowywany jest dowolny znak, który mieści się między tymi dwoma znakami (włącznie). Jeśli pierwszym znakiem po „[” jest „!” Lub „^”, dopasowywany jest dowolny znak nieuwzględniony. Znak „-” można dopasować, umieszczając go jako pierwszy lub ostatni znak w zestawie. Znak „] można dopasować, umieszczając go jako pierwszy znak w zestawie. Kolejność sortowania znaków w wyrażeniach zakresu zależy od bieżących ustawień regionalnych oraz wartości zmiennych powłoki LC_COLLATE i LC_ALL, jeśli są ustawione.
+
+```
+?(lista wzorów)
+```
+    Dopasowuje zero lub jedno wystąpienie podanych wzorów.
+
+```
+*(lista wzorów)
+```
+    Dopasowuje zero lub więcej wystąpień podanych wzorów.
+
+```
++(lista wzorów)
+```
+    Dopasowuje jedno lub więcej wystąpień podanych wzorów.
+
+```
+@(lista wzorów)
+```
+    Dopasowuje jeden z podanych wzorów.
+
+```
+!(lista wzorów)
+```
+    Dopasowuje wszystko oprócz jednego z podanych wzorów.
 
 ### `''` vs `""`
 
 W `""` działa omówiony wcześniej paramter expansion czyli nasze zmienne są rozwiane. Natomiast w `''` nasze zmienne nie zostają rozwinięte.
 
 Przykład:
-`#!/bin/bash
+```bash
+#!/bin/bash
 
 zmienna="jakaś wartość"
 echo "Nasza zmienna to: ${zmienna}"
 echo 'Nasza zmienna to: ${zmienna}'
-`
+```
 Wynik:
-`Nasza zmienna to: jakaś wartość
-Nasza zmienna to: ${zmienna}`
+```
+Nasza zmienna to: jakaś wartość
+Nasza zmienna to: ${zmienna}
+```

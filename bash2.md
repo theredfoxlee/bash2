@@ -191,6 +191,33 @@ Wynik:
 ```
 
 
+### Arytmetyka
+| Znak          | Operacja      |
+| ------------- |:-------------:|
+| id++      | post-inkrementacja|
+| id--      | post-dekrementacja|
+| ++id      | pre-inkrementacja|
+| --id      | pre-dekrementacja|
+| + | dodawanie |
+| - | odejmowanie |
+| ! | logiczna negacja |
+| ~ | bitowa negacja |
+| ** | potęgowanie |
+| * | mnożenie |
+| / | dzielenie |
+| % | modulo ( reszta z dzielenia) |
+| == | porównanie |
+| != | negacja porówania |
+| << | lewe przesunięcie bitowe |
+| >> | prawe przesunięcie bitowe |
+| <= >= <> | porównania |
+| & | bitowy AND |
+| ^ | bitowy XOR |
+| \| | bitowy OR |
+| && | logiczny AND |
+| \|\| | logiczny OR |
+
+
 ### Parameter Expansion
 
 Znak `$` wprowadza interpretację parametrów, podstawianie poleceń lub interpretację arytmetyczną. Nazwa parametru lub symbol, który ma zostać rozwinięty, mogą być ujęte w nawiasy klamrowe, które są opcjonalne, ale służą do ochrony zmiennej, która ma zostać rozwinięta przed znakami bezpośrednio po niej, które mogą zostać zinterpretowane jako część nazwy. Np. `echo "${zmienna_rok}r.`

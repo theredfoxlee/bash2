@@ -155,3 +155,118 @@ Subshell, jako proces dziecko, dziedziczy zmienne środowiskowe po aktualnym pro
 
 ## zmienne
 
+### Zasięg
+
+W powłoce mamy do czynienia z dwoma typami zasięgu:
+
+- lokalnym (definiowane z użyciem znacznika local),
+- globalnym (wszystkie pozostałe z wyjatkiem parametrów funkcji - dostęp do nich mozliwy jest z całego skryptu).
+
+Zasięg przykład:
+`#!/bin/bash
+function zmienne() {
+    local var_local=4096
+    var_global=128
+    echo "  var_local => ${var_local}"
+    echo "  var_global => ${var_global}"
+}
+echo "| Zmienne w funkcji:"
+zmienne
+echo "| Zmienne poza funkcją:"
+echo "  var_local => ${var_local}"
+echo "  var_global => ${var_global}"`
+
+Wynik:
+`| Zmienne w funkcji:
+  var_local => 4096
+  var_global => 128
+| Zmienne poza funkcją:
+  var_local => 
+  var_global => 128```
+
+
+### Parameter Expansion
+
+Znak `$` wprowadza interpretację parametrów, podstawianie poleceń lub interpretację arytmetyczną. Nazwa parametru lub symbol, który ma zostać rozwinięty, mogą być ujęte w nawiasy klamrowe, które są opcjonalne, ale służą do ochrony zmiennej, która ma zostać rozwinięta przed znakami bezpośrednio po niej, które mogą zostać zinterpretowane jako część nazwy. Np. `echo "${zmienna_rok}r.`
+
+Podstawową formą rozszerzania parametrów jest `${parametr}`. Wartość parametru jest podstawiona. 
+
+`${parametr:-przykład}`
+    Jeśli parametr jest nieustawiony lub zerowy, to słowo "przykład" zostanie podstawione. W przeciwnym razie wartość parametru zostanie podstawiona.
+    Ważne: jeżeli użyjemy `:-`  bash sprawdza czy parametr jest nieustawiony lub zerowy. Pominięcie dwukropka powoduje tylko test parametru, który nie jest ustawiony. Innymi słowy, jeśli dwukropek jest uwzględniony, operator sprawdza istnienie obu parametrów i czy jego wartość nie jest zerowa; jeśli dwukropek zostanie pominięty, operator sprawdza tylko istnienie.
+
+`${parametr:=przykład}`
+    Jeśli parametr jest nieustawiony lub zerowy, to słowo "przykład" zostanie przypisane do parametru. Wartość parametru zostaje następnie podstawiona. Parametry pozycyjne i parametry specjalne nie mogą być przypisane w ten sposób.
+
+`${parametr:?przykład}`
+    Jeśli parametr ma wartość zerową lub jest nieustawiony, to słowo "przykład" jest zapisywane do standardowego błędu i powłoka, jeśli nie jest interaktywna, kończy działanie. W przeciwnym razie wartość parametru zostanie podstawiona.
+
+`${parametr:+przykład}`
+    Jeśli parametr jest zerowy lub nieustawiony, nic nie jest podstawiane, w przeciwnym razie parametr jest zastępowany słowem "przykład".
+
+`${parametr:offset}
+$ {parametr:offset:długość}`
+    Jest to nazywane rozszerzaniem podciągów. Rozwija się do długości znaków o wartości parametru zaczynając od znaku określonego przez offset. Jeśli pominięto długość, to parametr rozwija się zaczynając od znaku określonego przez offset i rozciągając się do końca wartości.
+    Jeśli wartość przesunięcia jest równa liczbie mniejszej od zera, wartość jest używana jako przesunięcie w znakach od końca wartości parametru. Jeśli długość ma wartość mniejszą od zera, jest ona interpretowana jako przesunięcie w znakach od końca wartości parametru zamiast liczby znaków, a rozwinięcie to znaki między przesunięciem a tym wynikiem. Ujemne przesunięcie musi być oddzielone od dwukropka co najmniej o jedną spację, aby uniknąć pomylenia z rozszerzeniem „:-”.
+Przykłady:
+`$ string=01234567890abcdefgh
+$ echo ${string:7}
+7890abcdefgh
+$ echo ${string:7:0}
+
+$ echo ${string:7:2}
+78
+$ echo ${string:7:-2}
+7890abcdef
+$ echo ${string: -7}
+bcdefgh
+$ echo ${string: -7:0}
+
+$ echo ${string: -7:2}
+bc
+$ echo ${string: -7:-2}
+bcdef```
+
+
+`${!prefiks*}
+${!prefiks@}`
+    Rozwija się do nazw zmiennych, których nazwy rozpoczynają się od przedrostka "prefiks". Gdy zostanie użyte „@”, a rozwinięcie pojawi się w podwójnym cudzysłowie, każda nazwa zmiennej zostanie rozwinięta do osobnego słowa.
+
+`${!paramter[@]}
+${!paramter[*]}`
+    Jeśli paramter jest zmienną tablicową, rozwija się do listy indeksów tablicowych (kluczy) przypisanych w parametrze. Jeśli paramter nie jest tablicą, interpretowana jest jako 0, jeśli paramter jest ustawiony, a w przeciwnym razie null. Gdy używane jest „@”, a rozwinięcie pojawia się w podwójnych cudzysłowach, każdy klawisz rozwija się do osobnego słowa.
+
+`${parametr#}`
+    Długość w znakach rozszerzonej wartości parametru jest podstawiana. Jeśli parametr to „*” lub „@”, podstawiona wartość to liczba parametrów pozycyjnych. Jeśli parametr jest nazwą tablicy zapisaną w indeksie „*” lub „@”, podstawiona wartość to liczba elementów w tablicy. Jeśli parametr jest indeksowaną nazwą tablicy indeksowanej liczbą ujemną, liczba ta jest interpretowana jako względna do jednego większego niż maksymalny indeks parametru, więc indeksy ujemne odliczają od końca tablicy, a indeks -1 odwołuje się do ostatniego element.
+
+`${parametr#słowo}
+${parametr##słowo}`
+    Słowo jest traktowane jako wzór (pattern) i dopasowywane zgodnie z zasadami opisanymi później. Jeśli wzorzec pasuje do początkowej częśći rozszerzonej wartości parametru, wynikiem rozszerzenia jest rozwinięta wartość parametru z najkrótszym pasującym wzorcem (przypadek „#”) lub najdłuższym pasującym wzorcem (przypadek „##”) usuniętym. Jeśli parametrem jest „@” lub „*”, operacja usuwania wzoru jest kolejno stosowana do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja usuwania wzorca jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
+
+`${parametr%słowo}
+${parametr%%słowo}`
+    Słowo jest traktowane jako wzór (pattern) i dopasowywane zgodnie z zasadami opisanymi później. Jeśli wzorzec pasuje do końcowej części rozwiniętej wartości parametru, wynikiem rozszerzenia jest wartość parametru o najkrótszym dopasowanym wzorcu (przypadek „%”) lub najdłuższym dopasowanym wzorcu (przypadek „%%”) usuniętym. Jeśli parametrem jest „@” lub „*”, operacja usuwania wzoru jest kolejno stosowana do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja usuwania wzorca jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
+
+`${parametr/wzór/ciąg}`
+    "wzór" jest rozwijany, aby utworzyć wzorzec, podobnie jak w przypadku rozwijania nazw plików. Parametr jest rozszerzany, a najdłuższe dopasowanie wzorca do jego wartości jest zastępowane ciągiem "ciąg". Dopasowanie odbywa się zgodnie z zasadami opisanymi później. Jeśli wzorzec zaczyna się od „/”, wszystkie dopasowania wzorca są zastępowane ciągiem. Zwykle tylko pierwsze dopasowanie jest zastępowane. Jeśli wzorzec zaczyna się od „#”, musi pasować na początku rozszerzonej wartości parametru. Jeśli wzorzec zaczyna się od „%”, musi być zgodny na końcu rozszerzonej wartości parametru. Jeśli łańcuch jest pusty, dopasowania wzorca są usuwane, a wzorzec / następujący może zostać pominięty. Jeśli włączona jest opcja powłoki nocasematch, dopasowanie jest wykonywane bez względu na wielkość liter. Jeśli parametr to „@” lub „*”, operacja podstawienia jest stosowana kolejno do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja podstawienia jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
+
+`${parameter^wzór}
+${parameter^^wzór}
+${parameter,wzór}
+${parameter,,wzór}`
+    To rozszerzenie modyfikuje wielkość liter znaków alfabetycznych w parametrze. "wzór" jest rozwijany, aby utworzyć wzorzec (pattern), podobnie jak w przypadku rozwijania nazw plików. Każdy znak w rozszerzonej wartości parametru jest testowany względem wzorca, a jeśli pasuje do wzorca, jego wielkość liter jest konwertowana. Wzorzec nie powinien próbować dopasować więcej niż jednego znaku. Operator „^” konwertuje małe litery pasujące do wzorca; operator „,” konwertuje pasujące wielkie litery na małe. Rozszerzenia „^^” i „,,” przekształcają każdy dopasowany znak w wartość rozwiniętą; rozszerzenia „^” i „,” pasują i przekształcają tylko pierwszy znak w rozwiniętej wartości. Jeśli pominięto wzorzec, jest on traktowany jak „?”, Który pasuje do każdego znaku. Jeśli parametr to „@” lub „*”, operacja modyfikacji wielkości liter jest stosowana kolejno do każdego parametru pozycyjnego, a rozwinięcie jest listą wynikową. Jeśli parametr jest zmienną tablicową oznaczoną za pomocą „@” lub „*”, operacja modyfikacji wielkości liter jest stosowana do każdego elementu tablicy kolejno, a rozwinięcie jest listą wynikową.
+
+### `''` vs `""`
+
+W `""` działa omówiony wcześniej paramter expansion czyli nasze zmienne są rozwiane. Natomiast w `''` nasze zmienne nie zostają rozwinięte.
+
+Przykład:
+`#!/bin/bash
+
+zmienna="jakaś wartość"
+echo "Nasza zmienna to: ${zmienna}"
+echo 'Nasza zmienna to: ${zmienna}'
+`
+Wynik:
+`Nasza zmienna to: jakaś wartość
+Nasza zmienna to: ${zmienna}`

@@ -40,6 +40,8 @@ Jest ich więcej niż podane 4, ale te są najczęściej wykorzystywane.
 - **-u**, jeżeli skrypt używa nieustawionych zmiennych, to zakończ działenie skryptu z błędem
 - **-o pipeline**, jeżeli jakikolwiek program zakończy się innym niż 0 w pipeline, to również wyjdź z błędem
 
+**Więcej: `man set`**
+
 ### standardowe deskryptory
 
 Każdy program, włącznie z interpreterem wykonującym skrypt Bash, inicjalizowany jest z 3. standardowymi deskryptorami plików (czyli uchwytami do abstrakcyjnych strumieni danych):
